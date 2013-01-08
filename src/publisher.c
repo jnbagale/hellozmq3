@@ -52,7 +52,7 @@ void *send_data(void *pub_obj)
   while (1) {
 
     // Send message to all subscribers of default group: world
-    sprintf (data,"%s %s %d", pub_obj1->group_id, pub_obj1->group_id, count);
+    sprintf (data,"%s %s %d", pub_obj1->group_id, pub_obj1->user_id, count);
     send_message (pub_obj1->publisher, data, strlen(data), 0);
 
     printf("Sent :%s\n", data);
