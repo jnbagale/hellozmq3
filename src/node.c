@@ -20,7 +20,7 @@ static void print_usage(void);
 
 static void print_usage(void)
 {
-  printf("usage: node --group <group name> --host <host name> --type <pub or sub or both> --subport <sub port number> --pubport <pub port number> \n");
+  printf("usage: node --group <group name> --broker <broker host name> --type <pub or sub or both> --subport <sub port number> --pubport <pub port number> \n");
   exit(EXIT_SUCCESS);
 }
 
@@ -29,7 +29,6 @@ int main (int argc, char *argv [])
   int c;
   uuid_t buf;
   char id[36];
-  char *user_hash;
   char *group = DEFAULT_GROUP;
   char *host = DEFAULT_HOST;
   char *type = DEFAULT_TYPE;
@@ -99,16 +98,15 @@ int main (int argc, char *argv [])
   pub_obj->port = pub_port;
   sub_obj->host = strdup(host);
   pub_obj->host = strdup(host);
-  printf("host %s port sub %d port pub %d", host, sub_port, pub_port);
-
+  
   /* generate and assign unique user id */
   uuid_generate_random(buf);
   uuid_unparse(buf, id);
 
-  sub_obj->group_hash = strdup(group);
-  sub_obj->user_hash =  strdup(id);
-  pub_obj->group_hash = strdup(group);
-  pub_obj->user_hash =  strdup(id);
+  sub_obj->group_id = strdup(group);
+  sub_obj->user_id =  strdup(id);
+  pub_obj->group_id = strdup(group);
+  pub_obj->user_id =  strdup(id);
 
   if( (strcmp(type,"both") == 0) || (strcmp(type,"sub") == 0) ) {
     sub_obj = subscribe_forwarder(sub_obj);

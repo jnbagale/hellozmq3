@@ -3,8 +3,8 @@
 // team@theclashingrocks.org
 
 /* ZeroMQ Forwarder which receives data from publishers and sends it back to subscribers */
-/* Binds PUB socket to tcp://\*:5556 */
-/* Binds SUB socket to given host address */
+/* Binds PUB socket to given host address or default tcp://127.0.0.1:8100 */
+/* Binds SUB socket to given host address or default tcp://127.0.0.1:5556*/
 /* Publishes covariance data */
 
 #include <stdio.h>
@@ -78,7 +78,7 @@ void start_forwarder(brokerObject *broker_obj)
   frontend_endpoint = malloc(1000);
   backend_endpoint = malloc(1000);
 
-  sprintf(frontend_endpoint, "tcp://*:%d", broker_obj->pub_port);
+  sprintf(frontend_endpoint, "tcp://%s:%d", broker_obj->host, broker_obj->pub_port);
   sprintf(backend_endpoint, "tcp://%s:%d", broker_obj->host, broker_obj->sub_port);
 
   //  Prepare ZeroMQ context and sockets

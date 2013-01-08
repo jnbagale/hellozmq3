@@ -42,24 +42,20 @@ pubObject *publish_forwarder(pubObject *pub_obj)
   return pub_obj;
 }
 
-void send_data(void *pub_obj)
+void *send_data(void *pub_obj)
 {
   int count = 0;
-  int covariance;
-  char update [50];
+  char data [100];
 
   pubObject *pub_obj1 =  (pubObject *)pub_obj;
 
   while (1) {
-    // Initialize random covariance number generator
-    srand (time (NULL));
-    covariance = rand() % 1000 +1;
 
     // Send message to all subscribers of default group: world
-    sprintf (update,"%s %d %d", pub_obj1->group_hash, count, covariance);
-    send_message (pub_obj1->publisher, update, strlen(update), 0);
+    sprintf (data,"%s %s %d", pub_obj1->group_id, pub_obj1->group_id, count);
+    send_message (pub_obj1->publisher, data, strlen(data), 0);
 
-    printf("Sent :%s\n",update);
+    printf("Sent :%s\n", data);
     count++;
     usleep(100000);
   }
@@ -69,6 +65,8 @@ void free_pub_object(pubObject *pub_obj)
 {
   zmq_close (pub_obj->publisher);
   zmq_term (pub_obj->context);
+  free(pub_obj->group_id);
+  free(pub_obj->user_id);
   free(pub_obj->host);
   free(pub_obj);  
 }
