@@ -27,7 +27,7 @@ subObject *make_sub_object(void)
 
 subObject *subscribe_forwarder(subObject *sub_obj)
 {
-  uint64_t hwm = 100; 
+  //uint64_t hwm = 100; 
   sub_obj->context = zmq_init (1);
 
   char *forwarder_address = malloc(1000);
@@ -41,7 +41,7 @@ subObject *subscribe_forwarder(subObject *sub_obj)
   char *filter =  strdup(sub_obj->group_id);
   zmq_setsockopt (sub_obj->subscriber, ZMQ_SUBSCRIBE, filter, strlen(filter));
   /* Set high water mark to control number of messages buffered for subscribers */
-  zmq_setsockopt (sub_obj->subscriber, ZMQ_HWM, &hwm, sizeof (hwm));
+  // zmq_setsockopt (sub_obj->subscriber, ZMQ_HWM, &hwm, sizeof (hwm));
 
   printf("Receiving data from forwarder %s for group %s \n",forwarder_address, filter);
 
