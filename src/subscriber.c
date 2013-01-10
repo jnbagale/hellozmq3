@@ -28,7 +28,7 @@ subObject *make_sub_object(void)
 subObject *subscribe_forwarder(subObject *sub_obj)
 {
   //uint64_t hwm = 100; 
-  sub_obj->context = zmq_init (1);
+  sub_obj->context = zmq_ctx_new ();
 
   char *forwarder_address = malloc(1000);
   sprintf(forwarder_address, "tcp://%s:%d", sub_obj->host, sub_obj->port);
@@ -73,7 +73,7 @@ void *receive_data(void *sub_obj)
 void free_sub_object(subObject *sub_obj)
 {
   zmq_close (sub_obj->subscriber);
-  zmq_term (sub_obj->context);
+  zmq_ctx_destroy (sub_obj->context); 
   free(sub_obj->group_id);
   free(sub_obj->user_id);
   free(sub_obj->host);

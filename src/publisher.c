@@ -33,7 +33,7 @@ pubObject *publish_forwarder(pubObject *pub_obj)
   sprintf(forwarder_address, "tcp://%s:%d", pub_obj->host, pub_obj->port);
 
   /* Prepare zeromq context and publisher */
-  pub_obj->context = zmq_init (1);
+  pub_obj->context = zmq_ctx_new ();
   pub_obj->publisher = zmq_socket (pub_obj->context, ZMQ_PUB);
   zmq_connect (pub_obj->publisher, forwarder_address);
   
@@ -64,7 +64,7 @@ void *send_data(void *pub_obj)
 void free_pub_object(pubObject *pub_obj)
 {
   zmq_close (pub_obj->publisher);
-  zmq_term (pub_obj->context);
+  zmq_ctx_destroy(pub_obj->context);
   free(pub_obj->group_id);
   free(pub_obj->user_id);
   free(pub_obj->host);

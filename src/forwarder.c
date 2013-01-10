@@ -16,17 +16,8 @@
 #include "message.h"
 #include "forwarder.h"
 
-static int zmq_custom_broker(brokerObject *broker_obj, char *frontend_endpoint, char *backend_endpoint)
+static int zmq_custom_broker(brokerObject *broker_obj)
 {
-  //  Subscribe for everything
-  zmq_setsockopt (broker_obj->frontend, ZMQ_SUBSCRIBE, "", 0); 
-  
-  zmq_bind (broker_obj->frontend,  frontend_endpoint);
-  zmq_bind (broker_obj->backend, backend_endpoint);
-
-  printf("\nForwarder device is receiving at %s\n", frontend_endpoint);
-  printf("\nForwarder device is sending from %s\n", backend_endpoint);
- 
   while (1)
     {
       int hasMore = 1;
@@ -70,7 +61,6 @@ brokerObject *make_broker_object(void)
 
 void start_forwarder(brokerObject *broker_obj)
 {
-  // To subscriber to all the publishers
   char *frontend_endpoint;
   char *backend_endpoint;
 
@@ -80,22 +70,38 @@ void start_forwarder(brokerObject *broker_obj)
   sprintf(frontend_endpoint, "tcp://%s:%d", broker_obj->host, broker_obj->pub_port);
   sprintf(backend_endpoint, "tcp://%s:%d", broker_obj->host, broker_obj->sub_port);
 
-  //  Prepare ZeroMQ context and sockets
-  broker_obj->context = zmq_init (1);
-  broker_obj->frontend = zmq_socket (broker_obj->context, ZMQ_SUB);
-  broker_obj->backend = zmq_socket (broker_obj->context, ZMQ_PUB);
+  //  prepare ZeroMQ context and sockets
+  broker_obj->context = zmq_ctx_new ();
+  broker_obj->frontend = zmq_socket (broker_obj->context, ZMQ_XSUB);
+  broker_obj->backend = zmq_socket (broker_obj->context, ZMQ_XPUB);
 
-  //  Start the forwarder device
-  //  zmq_device (ZMQ_FORWARDER, broker_obj->frontend, broker_obj->backend);
-  zmq_custom_broker(broker_obj,frontend_endpoint, backend_endpoint );
+  //  subscribe for everything
+  zmq_setsockopt (broker_obj->frontend, ZMQ_SUBSCRIBE, "", 0); 
+
+  // pass subscription to upstream publishers
+  zmq_setsockopt (broker_obj->frontend, ZMQ_XPUB_VERBOSE, 1, sizeof(int));
+
+  // bind sockets for both ends
+  zmq_bind (broker_obj->frontend,  frontend_endpoint);
+  zmq_bind (broker_obj->backend, backend_endpoint);
+
+  printf("\nForwarder device is receiving at %s\n", frontend_endpoint);
+  printf("\nForwarder device is sending from %s\n", backend_endpoint);
+
+  // free up memory 
+  free(frontend_endpoint);
+  free(backend_endpoint);
+
+  //  Start the forwarder  proxy device
+  zmq_proxy (broker_obj->frontend, broker_obj->backend, NULL);
+  // zmq_custom_broker(broker_obj);
 }
 
 void free_broker_object(brokerObject *broker_obj)
 {
   zmq_close(broker_obj->backend);
   zmq_close(broker_obj->frontend);
-  zmq_term (broker_obj->context);
-
+  zmq_ctx_destroy(broker_obj->context);
   free(broker_obj->group);
   free(broker_obj->host);
   free(broker_obj);  
