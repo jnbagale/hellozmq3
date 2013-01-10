@@ -3,8 +3,8 @@
 // team@theclashingrocks.org
 
 /* ZeroMQ Forwarder which receives data from publishers and sends it back to subscribers */
-/* Binds PUB socket to given host address or default tcp://127.0.0.1:8100 */
-/* Binds SUB socket to given host address or default tcp://127.0.0.1:5556*/
+/* Binds XPUB socket to given host address or default tcp://127.0.0.1:8100 */
+/* Binds XSUB socket to given host address or default tcp://127.0.0.1:5556*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,6 +61,7 @@ brokerObject *make_broker_object(void)
 
 void start_forwarder(brokerObject *broker_obj)
 {
+  int xpub_verbose = 1;
   char *frontend_endpoint;
   char *backend_endpoint;
 
@@ -72,14 +73,14 @@ void start_forwarder(brokerObject *broker_obj)
 
   //  prepare ZeroMQ context and sockets
   broker_obj->context = zmq_ctx_new ();
-  broker_obj->frontend = zmq_socket (broker_obj->context, ZMQ_XSUB);
-  broker_obj->backend = zmq_socket (broker_obj->context, ZMQ_XPUB);
+  broker_obj->frontend = zmq_socket (broker_obj->context, ZMQ_SUB);
+  broker_obj->backend = zmq_socket (broker_obj->context, ZMQ_PUB);
 
   //  subscribe for everything
   zmq_setsockopt (broker_obj->frontend, ZMQ_SUBSCRIBE, "", 0); 
 
   // pass subscription to upstream publishers
-  zmq_setsockopt (broker_obj->frontend, ZMQ_XPUB_VERBOSE, 1, sizeof(int));
+  zmq_setsockopt (broker_obj->frontend, ZMQ_XPUB_VERBOSE, &xpub_verbose, sizeof(xpub_verbose));
 
   // bind sockets for both ends
   zmq_bind (broker_obj->frontend,  frontend_endpoint);
