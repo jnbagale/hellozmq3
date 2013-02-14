@@ -73,8 +73,8 @@ void start_forwarder(brokerObject *broker_obj)
 
   //  prepare ZeroMQ context and sockets
   broker_obj->context = zmq_ctx_new ();
-  broker_obj->frontend = zmq_socket (broker_obj->context, ZMQ_SUB);
-  broker_obj->backend = zmq_socket (broker_obj->context, ZMQ_PUB);
+  broker_obj->frontend = zmq_socket (broker_obj->context, ZMQ_XSUB);
+  broker_obj->backend = zmq_socket (broker_obj->context, ZMQ_XPUB);
 
   //  subscribe for everything
   zmq_setsockopt (broker_obj->frontend, ZMQ_SUBSCRIBE, "", 0); 
