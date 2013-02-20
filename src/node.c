@@ -39,15 +39,7 @@ int main (int argc, char *argv [])
   pthread_t thread_sub;
   pthread_t thread_pub;
 
-  /* check if zeromq version is greater than 3.0 */
-  int major, minor, patch;
-  zmq_version(&major, &minor, &patch);
-
-  if(major < 3) {
-    printf("Please install ZMQ version 3.0 or greater. The current ZMQ version is %d.%d.%d\n", major, minor, patch);
-    exit(EXIT_FAILURE);
-  }
-
+  
   /* creating a subscriber and publisher object structure and assigning broker's network address and port numbers */
   sub_obj = make_sub_object();
   pub_obj = make_pub_object();

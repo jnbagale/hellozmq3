@@ -75,12 +75,10 @@ void start_forwarder(brokerObject *broker_obj)
   broker_obj->context = zmq_ctx_new ();
   broker_obj->frontend = zmq_socket (broker_obj->context, ZMQ_XSUB);
   broker_obj->backend = zmq_socket (broker_obj->context, ZMQ_XPUB);
-
-  //  subscribe for everything
-  zmq_setsockopt (broker_obj->frontend, ZMQ_SUBSCRIBE, "", 0); 
+ 
 
   // pass subscription to upstream publishers
-  zmq_setsockopt (broker_obj->frontend, ZMQ_XPUB_VERBOSE, &xpub_verbose, sizeof(xpub_verbose));
+  zmq_setsockopt (broker_obj->backend, ZMQ_XPUB_VERBOSE, &xpub_verbose, sizeof(xpub_verbose));
 
   // bind sockets for both ends
   zmq_bind (broker_obj->frontend,  frontend_endpoint);

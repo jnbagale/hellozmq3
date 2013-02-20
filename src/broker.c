@@ -20,7 +20,7 @@ static void print_usage(void);
 
 static void print_usage(void)
 {
-  printf("usage: broker --group <group name> --host <host name> --subport <sub port number> --pubport <pub port number> \n");
+  printf("usage: broker --group <group name> --broker <broker host name> --subport <sub port number> --pubport <pub port number> \n");
   exit(EXIT_SUCCESS);
 }
 
@@ -33,14 +33,6 @@ int main (int argc, char *argv[])
   int pub_port = DEFAULT_PUB_PORT;
   brokerObject *broker_obj = NULL;
 
- /* check if zeromq version is greater than 3.0 */
-  int major, minor, patch;
-  zmq_version(&major, &minor, &patch);
- 
-  if(major < 3) {
-    printf("Please install ZMQ version 3.0 or greater. The current ZMQ version is %d.%d.%d\n", major, minor, patch);
-    exit(EXIT_FAILURE);
-  }
   
   /* creating a broker object structure and assigning broker's network address and port numbers */
   broker_obj = make_broker_object();
