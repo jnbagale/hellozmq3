@@ -61,11 +61,27 @@ void *receive_data(void *sub_obj)
   while(1)
     {
       /* Receive data from forwarder using magical s_recv fn from z_helpers.h */
-      char *string = receive_message (sub_obj1->subscriber, &size);
-  
-      sscanf (string, "%s %s %d", group, user, &count);
-      printf("Received: group:- %s user:- %s count:- %d\n", group, user, count);
-      free (string);
+      int hasMore = 1;
+      while(hasMore) {
+	int size;
+	int64_t more;
+	size_t more_size = sizeof (more);
+	char *string = NULL;
+	
+	string = receive_message (sub_obj1->subscriber, &size);
+	
+	/* check if more message is present on the socket */
+	zmq_getsockopt (sub_obj1->subscriber, ZMQ_RCVMORE, &more, &more_size);
+
+	// sscanf (string, "%s %s %d", group, user, &count);
+	// printf("Received: group:- %s user:- %s count:- %d\n", group, user, count);
+	printf("%s ", string);
+	hasMore = more;
+	free (string);
+	usleep(10);
+      }
+
+      printf("\n");
       usleep(10);
     }
 }

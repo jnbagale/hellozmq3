@@ -37,7 +37,7 @@ pubObject *publish_forwarder(pubObject *pub_obj)
   pub_obj->publisher = zmq_socket (pub_obj->context, ZMQ_PUB);
   zmq_connect (pub_obj->publisher, forwarder_address);
   
-  printf("Now sending data to forwarder at %s\n", forwarder_address);
+  printf("Now sending data to forwarder at %s for group %s\n", forwarder_address, pub_obj->group_id);
   free(forwarder_address);
   return pub_obj;
 }
@@ -52,12 +52,21 @@ void *send_data(void *pub_obj)
   while (1) {
 
     // Send message to all subscribers of default group: world
-    sprintf (data,"%s %s %d", pub_obj1->group_id, pub_obj1->user_id, count);
+    //sprintf (data,"%s %s %d", pub_obj1->group_id, pub_obj1->user_id, count);
+    // send_message (pub_obj1->publisher, data, strlen(data), 0);
+
+    // sending as multi-part messages
+    //////////// Topic /////////////
+    send_message (pub_obj1->publisher, pub_obj1->group_id, strlen(pub_obj1->group_id), ZMQ_SNDMORE);
+    //////////// Sub Topic ////////
+    send_message (pub_obj1->publisher, pub_obj1->user_id, strlen(pub_obj1->user_id), ZMQ_SNDMORE);
+    //////////// Data /////////////
+    sprintf (data,"%d", count);
     send_message (pub_obj1->publisher, data, strlen(data), 0);
 
-    printf("Sent :%s\n", data);
+    printf("Sent : %s %s %s \n", pub_obj1->group_id, pub_obj1->user_id, data);
     count++;
-    usleep(100000);
+    sleep(10);
   }
 }
 
