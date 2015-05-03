@@ -1,6 +1,6 @@
 // License: GPLv3
-// Copyright 2012 The Clashing Rocks
-// team@theclashingrocks.org
+// Copyright 2012 Jiva Bagale
+// jnbagale@gmail.com
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,7 +35,7 @@ pubObject *publish_forwarder(pubObject *pub_obj)
   /* Prepare zeromq context and publisher */
   pub_obj->context = zmq_ctx_new ();
   pub_obj->publisher = zmq_socket (pub_obj->context, ZMQ_PUB);
-  zmq_connect (pub_obj->publisher, forwarder_address);
+  zmq_connect(pub_obj->publisher, forwarder_address);
   
   printf("Now sending data to forwarder at %s\n", forwarder_address);
   free(forwarder_address);
@@ -57,7 +57,7 @@ void *send_data(void *pub_obj)
 
     printf("Sent :%s\n", data);
     count++;
-    usleep(100000);
+    sleep(10);
   }
 }
 

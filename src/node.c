@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <pthread.h>
 #include <getopt.h>
@@ -134,6 +135,7 @@ int main (int argc, char *argv [])
       exit(EXIT_FAILURE);
     }
   }
+  sleep(10);
 
   if( (strcmp(type,"both") == 0) || (strcmp(type,"pub") == 0) ) {
     /* Join the thread to publish */

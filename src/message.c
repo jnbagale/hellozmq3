@@ -1,6 +1,6 @@
 // License: GPLv3
-// Copyright 2012 The Clashing Rocks
-// team@theclashingrocks.org
+// Copyright 2012 Jiva Bagale
+// jnbagale@gmail.com
 
 #include <stdio.h>
 #include <stdlib.h>
