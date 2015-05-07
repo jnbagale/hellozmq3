@@ -29,7 +29,7 @@ static int zmq_custom_broker(brokerObject *broker_obj)
   
   if(heartbeat_pid >= 0) {   /* successfully forked a new process */
     if(heartbeat_pid == 0) { /* runs in child process */
-      // setup a publisher to send heartbeat messages
+      // setup a new publisher to send heartbeat messages
       
       char *forwarder_address =  malloc(1000);
       sprintf(forwarder_address, "tcp://%s:%d", broker_obj->host, broker_obj->pub_port);
@@ -41,25 +41,10 @@ static int zmq_custom_broker(brokerObject *broker_obj)
       free(forwarder_address);
 
       while(1) {
-	printf("sending heartbeat message to subscribers\n");
+	//	printf("sending heartbeat message to subscribers\n");
 	
-	sleep(60);
+	sleep(DEFAULT_HEARTBEAT_FREQ);
 	send_message(publisher, "HB", 2, 0);
-	
-	/*
-	int rc;
-	zmq_msg_t z_message;
-
-	if((rc = zmq_msg_init_size (&z_message, 5)) == -1){
-	  printf("Error occurred during zmq_msg_init_size(): %s", zmq_strerror (errno));
-	  return rc;
-	}
-
-	memcpy (zmq_msg_data (&z_message), "HB", 2);
-
-	zmq_msg_send(&z_message, publisher, 0);
-	zmq_msg_close(&z_message);
-	*/
       }
     }  /* runs in parent process if else {} statement is used here */
   }

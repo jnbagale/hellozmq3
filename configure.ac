@@ -9,6 +9,8 @@ AC_DEFINE([DEFAULT_SUB_PORT],[8100],["the default zeromq broker outbound port"])
 AC_DEFINE([DEFAULT_PUB_PORT],[5556],["the default zeromq broker inbound port"])
 AC_DEFINE([DEFAULT_GROUP],["world"],["the group everyone can join"])
 AC_DEFINE([DEFAULT_TYPE],["both"],["the default client type to run"])
+AC_DEFINE([DEFAULT_HEARTBEAT_FREQ],[60],["the default frequency for heartbeat messages in seconds"])
+
 
 # Checks for programs.
 AC_PROG_CC
