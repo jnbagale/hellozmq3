@@ -29,9 +29,37 @@ static int zmq_custom_broker(brokerObject *broker_obj)
   
   if(heartbeat_pid >= 0) {   /* successfully forked a new process */
     if(heartbeat_pid == 0) { /* runs in child process */
+      // setup a publisher to send heartbeat messages
+      
+      char *forwarder_address =  malloc(1000);
+      sprintf(forwarder_address, "tcp://%s:%d", broker_obj->host, broker_obj->pub_port);
+
+      /* Prepare zeromq context and publisher */
+      void *pub_context = zmq_ctx_new ();
+      void *publisher = zmq_socket (pub_context, ZMQ_PUB);
+      zmq_connect(publisher, forwarder_address);
+      free(forwarder_address);
+
       while(1) {
 	printf("sending heartbeat message to subscribers\n");
-	sleep(5);
+	
+	sleep(60);
+	send_message(publisher, "HB", 2, 0);
+	
+	/*
+	int rc;
+	zmq_msg_t z_message;
+
+	if((rc = zmq_msg_init_size (&z_message, 5)) == -1){
+	  printf("Error occurred during zmq_msg_init_size(): %s", zmq_strerror (errno));
+	  return rc;
+	}
+
+	memcpy (zmq_msg_data (&z_message), "HB", 2);
+
+	zmq_msg_send(&z_message, publisher, 0);
+	zmq_msg_close(&z_message);
+	*/
       }
     }  /* runs in parent process if else {} statement is used here */
   }
@@ -64,12 +92,15 @@ static int zmq_custom_broker(brokerObject *broker_obj)
 	  if(size > 0) {
 	    if((message_str = malloc(size + 1)) != NULL){
 	      memcpy (message_str, zmq_msg_data (&message), size);
+	      // add null termination to the string
+	      message_str[size] = '\0';  
 	      printf("Message string: %s\n", message_str);
 	    }
 	  }
 
 	  zmq_getsockopt(broker_obj->frontend, ZMQ_RCVMORE, &more, &more_size);
 	  zmq_msg_send(&message, broker_obj->backend, more ? ZMQ_SNDMORE : 0);
+
 	  zmq_msg_close(&message);
 	  if (!more) {
 	    break;
@@ -83,6 +114,20 @@ static int zmq_custom_broker(brokerObject *broker_obj)
 	  zmq_msg_recv(&message, broker_obj->backend, 0);
 	  size_t more_size = sizeof(more);
 	  zmq_getsockopt(broker_obj->backend, ZMQ_RCVMORE, &more, &more_size);
+
+	  char *message_str = NULL;
+	  int size = zmq_msg_size (&message);
+
+	  if(size > 0) {
+	    if((message_str = malloc(size + 1)) != NULL){
+	      memcpy (message_str, zmq_msg_data (&message), size);
+	      // add null termination to the string
+	      message_str[size] = '\0';  
+	      printf("Subscription: %s\n", message_str);
+	    }
+	  }
+
+
 	  zmq_msg_send(&message, broker_obj->frontend, more ? ZMQ_SNDMORE : 0);
 	  zmq_msg_close(&message);
 	  if (!more) {

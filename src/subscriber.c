@@ -40,6 +40,9 @@ subObject *subscribe_forwarder(subObject *sub_obj)
   /* Subscribe to default group: world */
   char *filter =  strdup(sub_obj->group_id);
   zmq_setsockopt (sub_obj->subscriber, ZMQ_SUBSCRIBE, filter, strlen(filter));
+
+  zmq_setsockopt (sub_obj->subscriber, ZMQ_SUBSCRIBE, "HB", 2);
+
   /* Set high water mark to control number of messages buffered for subscribers */
   // zmq_setsockopt (sub_obj->subscriber, ZMQ_HWM, &hwm, sizeof (hwm));
 
